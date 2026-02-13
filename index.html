@@ -43,6 +43,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-shrink: 0;
   }
 
   #sidebar-header h2 {
@@ -256,6 +257,12 @@
 
   .input-form.active {
     display: block;
+  }
+  
+  #change-pfp-form {
+    margin: 0;
+    border-radius: 0;
+    border-top: 1px solid #18191c;
   }
 
   input[type="text"],
@@ -696,8 +703,20 @@
     padding: 12px;
     background: #202225;
     border-top: 1px solid #18191c;
-    display: flex;
+    display: flex !important;
     gap: 8px;
+    flex-shrink: 0;
+    margin-top: auto;
+  }
+  
+  #user-controls .btn {
+    flex: 1;
+  }
+  
+  #change-pfp-form {
+    flex-shrink: 0;
+    padding: 12px;
+    background: #202225;
   }
 
   /* Empty State */
@@ -778,16 +797,22 @@
         <button class="btn btn-success btn-small" id="invite-btn">Invite</button>
       </div>
     </div>
+    
+    <!-- Backup user controls inside scrollable area -->
+    <div style="margin-top: 24px; padding: 12px; background: #202225; border-radius: 8px;">
+      <button class="btn btn-secondary btn-small" style="width: 100%; margin-bottom: 8px;" id="change-pfp-btn-2">Change Avatar</button>
+      <button class="btn btn-danger btn-small" style="width: 100%;" onclick="logout()">Logout</button>
+    </div>
+  </div>
+  
+  <div class="input-form" id="change-pfp-form">
+    <input type="text" id="new-pfp-url" placeholder="Profile picture URL">
+    <button class="btn btn-primary btn-small" id="save-pfp-btn">Save</button>
   </div>
   
   <div id="user-controls">
     <button class="btn btn-secondary btn-small" id="change-pfp-btn">Change Avatar</button>
     <button class="btn btn-danger btn-small" onclick="logout()">Logout</button>
-  </div>
-  
-  <div class="input-form" id="change-pfp-form" style="margin: 0 12px 12px;">
-    <input type="text" id="new-pfp-url" placeholder="Profile picture URL">
-    <button class="btn btn-primary btn-small" id="save-pfp-btn">Save</button>
   </div>
 </div>
 
@@ -960,6 +985,14 @@ const createGroupForm = document.getElementById("create-group-form");
 const changePfpBtn = document.getElementById("change-pfp-btn");
 const changePfpForm = document.getElementById("change-pfp-form");
 const googleLoginBtn = document.getElementById("google-login-btn");
+
+// Second change avatar button
+const changePfpBtn2 = document.getElementById("change-pfp-btn-2");
+if (changePfpBtn2) {
+  changePfpBtn2.onclick = () => {
+    changePfpForm.classList.toggle("active");
+  };
+}
 
 // ================== Google Login Button ==================
 googleLoginBtn.onclick = () => {
