@@ -443,4 +443,82 @@ function renderMessage(snapshot, ref) {
 }
 
 // ========== Send Message ==========
-function sendMessage
+function sendMessage() {
+  if (!currentUser || !currentChat) return;
+  const text = document.getElementById("message").value.trim();
+  if (!text) return;
+  
+  if (currentChat.type === "dm") {
+    const key = [currentUserUid, currentChat.uid].sort().join("_");
+    messagesRef.child(key).push({ senderUid: currentUserUid, text, timestamp: Date.now() });
+  } else {
+    groupsRef.child(currentChat.name).child("messages").push({ senderUid: currentUserUid, text, timestamp: Date.now() });
+  }
+  document.getElementById("message").value = "";
+}
+
+// ========== Add Friend ==========
+document.getElementById("add-friend-btn").onclick = () => {
+  document.getElementById("add-friend-form").classList.toggle("active");
+};
+
+document.getElementById("send-request-btn").onclick = () => {
+  const friendUsername = document.getElementById("friend-username").value.trim();
+  if (!friendUsername) return;
+  
+  usersRef.orderByChild("username").equalTo(friendUsername).once("value").then(snapshot => {
+    if (!snapshot.exists()) {
+      alert("User not found!");
+    } else {
+      snapshot.forEach(child => {
+        const friendUid = child.key;
+        if (friendUid === currentUserUid) {
+          alert("You can't add yourself!");
+        } else {
+          usersRef.child(friendUid).child("requests").child(currentUserUid).set(true);
+          alert("Friend request sent!");
+          document.getElementById("friend-username").value = "";
+          document.getElementById("add-friend-form").classList.remove("active");
+        }
+      });
+    }
+  });
+};
+
+// ========== Create Group ==========
+document.getElementById("create-group-btn").onclick = () => {
+  document.getElementById("create-group-form").classList.toggle("active");
+};
+
+document.getElementById("create-group-confirm").onclick = () => {
+  const groupName = document.getElementById("group-name").value.trim();
+  if (!groupName) return;
+  groupsRef.child(groupName).set({
+    creator: currentUserUid,
+    members: { [currentUserUid]: true },
+    messages: {}
+  });
+  document.getElementById("group-name").value = "";
+  document.getElementById("create-group-form").classList.remove("active");
+};
+
+// ========== Enter to send ==========
+document.getElementById("message").addEventListener("keypress", e => {
+  if (e.key === "Enter") sendMessage();
+});
+
+// ========== Auto-login ==========
+window.onload = () => {
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      usersRef.child(user.uid).update({ online:true });
+      usersRef.child(user.uid).once('value').then(snap => {
+        const userData = snap.val();
+        login(user.uid, userData.username || user.displayName || user.email.split("@")[0]);
+      });
+    }
+  });
+};
+</script>
+</body>
+</html>
